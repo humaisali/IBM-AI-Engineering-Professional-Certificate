@@ -1,0 +1,8 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Planning Documents
+Notebook_Modernization_Plan.md
+Notes_Creation_Plan.md
