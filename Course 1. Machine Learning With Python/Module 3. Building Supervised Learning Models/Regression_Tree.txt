@@ -1,0 +1,958 @@
+Lecture Video 1: Regression Tree.
+
+Summary: 
+This lecture explains the concept and construction of regression trees, a type of decision tree used for predicting continuous values.
+
+Definition and Differences from Classification Trees
+
+Regression trees predict continuous target variables, unlike classification trees which predict categorical classes.
+The prediction at leaf nodes in regression trees is the average of target values, whereas classification trees use majority class voting.
+Creation and Splitting Criteria
+
+Regression trees are built by recursively splitting the dataset to minimize variance within nodes.
+Splits are evaluated using mean squared error (MSE), aiming to reduce the weighted average MSE of resulting subsets.
+Handling Features and Thresholds
+
+For continuous features, candidate split thresholds are chosen as midpoints between sorted unique values.
+For binary or multi-class features, splits are made by separating classes or using strategies like one-versus-one to find the best binary split minimizing MSE.
+Prediction and Optimization
+
+Predictions at nodes are typically the mean of target values, but median can be used for skewed data.
+The training process selects features and thresholds that minimize prediction variance, improving regression accuracy.
+
+Transcript:
+Welcome to Regression Trees. ​After watching this video, you will be able to describe a regression tree and recognize ​how it is different from classification. ​You will also be able to explain how to create a regression tree. ​A regression tree is analogous to a decision tree that predicts continuous values rather ​than discrete classes. ​The distinguishing feature between classification and regression is the characteristic of the ​target or labeled data. ​In classification, the target variable is categorical, such as true or false. ​In regression, the target is a continuous value, such as temperature or salary. 
+​When a decision tree is adapted to solve regression problems, it is called a regression tree. ​Let's compare classification trees with regression trees to understand how they're ​different. ​The target of a classification tree is to classify data into discrete sets, whereas ​a regression tree aims at predicting continuous target variables. ​Hence, the target variable for a classification tree is categorical but floating for a regression ​tree. ​The prediction at leaf nodes for a classification tree is a class-labeled majority vote, whereas ​for a regression tree, it is the average value of target values. ​Some used cases of classification trees are spam detection, image classification, medical ​diagnosis. ​Regression trees are used for predicting revenue, temperatures, and wildfire risk. 
+​Regression trees are created by recursively splitting the dataset into subsets to maximize ​information gained from data splitting. ​This process generates a tree-like structure and minimizes the randomness of the classes ​assigned to the split nodes. ​Let's consider this example. ​Given a continuous feature from a dataset and a trial threshold value, alpha, the data ​in a node is split into two subsets according to whether the data is greater than or less ​than alpha, and the corresponding points are assigned to the left and right nodes. ​If the feature is binary, consisting of two classes, then the split is according to the ​two classes. ​You make a prediction at each node based either on a class voting scheme as with decision ​trees or by using the average of the target values in the node. ​The predicted value, y-hat, for a given node is defined as the average of the actual target ​values, y, i of the data points in the node. 
+​You could use other statistics, like the median value, to assign the prediction. ​This would be preferable when your data is skewed. ​For normally distributed data, the median is comparable to the mean, but the median ​is more expensive to compute. ​Instead of using the entropy or information gained criteria to measure the quality of ​a split, as for decision trees, regression trees select features that minimize the error ​between the actual values, y, i in the resulting nodes, and the predicted value, y-hat. ​A natural criterion for measuring the split quality of a given feature uses the mean-squared ​error, or MSE. ​Notice that this amounts to measuring the variance of the target values within each ​node, which gauges how spread out the values are. ​The smaller the variance is, the more closely the values agree. 
+​To measure the quality of a split, the weighted average of the MSEs of each split node can ​be used. ​The weighted average is calculated as average MSE equals one over the number of observations ​in the two split nodes, times the sum of the number of observations in the left split times ​the MSE of the left split, and the number of observations in the right split times the ​MSE of the right split. ​The lower this value, the lower the variance, and thus, the higher the quality of the split. ​During training, the tree finds the feature and threshold that best splits each node. ​For each potential split of a feature, the tree calculates the MSE for the left and right ​subsets. ​The MSE of the split is a weighted average of the MSEs of the subsets. ​The split with the lowest-weighted MSE is chosen. 
+​This process minimizes the variance in the predicted values and improves the accuracy ​of the regression tree. ​For a binary feature, instead of using thresholds, the data is simply separated into its two ​classes, and the split quality is just the weighted average of the class MSEs. ​The weighted MSE has only one possible result, so it is already optimized. ​For a multi-class feature, you can use a strategy like one-versus-one or one-versus-all to generate ​a set of possible binary splits. ​Then, for each binary split, calculate the weighted average of the MSEs. ​Select the split that minimizes the weighted MSE, and thus, the lowest prediction variance. ​How can you choose a set of trial thresholds to split a continuous feature on? 
+​There are many ways. ​Here's one strategy. ​Start by sorting the feature's values so that Xi is less than or equal to Xj, for all ​indexes i less than j. ​Drop any duplicated values so that Xi is strictly less than Xj, for all i less than j. ​Define your candidate thresholds, αi as the midpoints between each pair of consecutive ​values, αi is half of Xi, plus Xi plus 1. ​Choose the threshold that minimizes the weighted MSE for its data split. ​This is an exhaustive search method that doesn't scale well to big data. 
+​For very large datasets, selecting a sparse subset of these thresholds can improve efficiency ​at the cost of accuracy. ​The method also assumes the target values, X, are uniformly distributed. ​For efficiency, you should consider the distribution when sampling the thresholds. ​In this video, you learned that a regression tree is analogous to a decision tree that ​predicts continuous values. ​In classification, the target variable is categorical, and in regression, the target ​is a continuous value. ​Regression trees are created by recursively splitting the dataset into subsets to maximize ​information gained from data splitting. ​MSE is a natural criterion for measuring the split quality of a given feature. 
+​The regression tree finds the feature and threshold that best splits each node during ​training. ​The feature can be binary or multi-class. ​Finally, you learned that you can choose continuous feature trial thresholds in multiple ways ​depending on data size. 
+
+ChatGPT notes:
+
+# 🌳 Regression Trees — Explained from Scratch
+
+A **Regression Tree** is a type of **Decision Tree** used when we want to predict a **continuous numerical value**.
+
+For example:
+
+* Predict a person's **salary** → `85,000`
+* Predict tomorrow's **temperature** → `32.5°C`
+* Predict house **price** → `$250,000`
+* Predict company's **revenue** → `$1.2M`
+
+The main idea is:
+
+> **Keep splitting the data into smaller groups so that the target values inside each group become as similar as possible.**
+
+---
+
+## 1. Regression Tree vs Classification Tree
+
+This is the most important distinction.
+
+|                 | Classification Tree | Regression Tree |
+| --------------- | ------------------- | --------------- |
+| Target          | Categorical         | Continuous      |
+| Prediction      | Class               | Number          |
+| Example         | Spam / Not Spam     | House Price     |
+| Leaf prediction | Majority class      | Average target  |
+| Split criterion | Gini / Entropy      | MSE / Variance  |
+
+### Classification example
+
+Suppose a leaf contains:
+
+```text
+Spam
+Spam
+Not Spam
+Spam
+```
+
+The tree predicts:
+
+```text
+Spam
+```
+
+because **Spam is the majority class**.
+
+### Regression example
+
+Suppose a leaf contains house prices:
+
+```text
+200,000
+210,000
+220,000
+```
+
+The tree predicts:
+
+[
+\hat y = \frac{200000+210000+220000}{3}
+]
+
+[
+\hat y = 210000
+]
+
+So:
+
+> **Classification → majority vote**
+> **Regression → average value**
+
+---
+
+# 2. What Does a Regression Tree Look Like?
+
+Imagine we're predicting **house prices** based on house size.
+
+```text
+                 Size < 1500?
+                  /        \
+                Yes         No
+                /            \
+          Size < 1000?     Price = 300k
+           /      \
+         Yes      No
+         /         \
+     Price=150k   Price=220k
+```
+
+Suppose a new house has:
+
+```text
+Size = 1200 sq ft
+```
+
+The tree asks:
+
+```text
+1200 < 1500?
+```
+
+Yes.
+
+Then:
+
+```text
+1200 < 1000?
+```
+
+No.
+
+Therefore:
+
+```text
+Prediction = 220k
+```
+
+Notice something important:
+
+The tree isn't necessarily predicting a value that existed in the training dataset. It predicts the **average target value of the training samples that reached that leaf**.
+
+---
+
+# 3. How Does the Tree Decide Where to Split?
+
+This is the heart of regression trees.
+
+Suppose we have:
+
+| Size | Price |
+| ---: | ----: |
+|  800 |   150 |
+|  900 |   160 |
+| 1200 |   200 |
+| 1500 |   250 |
+| 1800 |   300 |
+| 2000 |   320 |
+
+The tree could try:
+
+```text
+Size < 1000
+Size < 1350
+Size < 1650
+Size < 1900
+...
+```
+
+For every possible split, it asks:
+
+> **"After splitting the data, how similar are the target values inside each group?"**
+
+We want the groups to have **low variance**.
+
+---
+
+# 4. MSE — The Main Criterion
+
+Regression trees commonly use **Mean Squared Error (MSE)** to measure how good a split is.
+
+The formula is:
+
+[
+MSE = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat y)^2
+]
+
+Where:
+
+* (y_i) = actual value
+* (\hat y) = predicted value
+* (n) = number of observations
+
+For a regression tree node:
+
+[
+\hat y = \text{mean of target values in the node}
+]
+
+---
+
+## 5. Simple MSE Example
+
+Suppose one node contains:
+
+```text
+10
+12
+14
+```
+
+The prediction is the mean:
+
+[
+\hat y = \frac{10+12+14}{3}=12
+]
+
+Now calculate errors:
+
+```text
+10 → 10 - 12 = -2
+12 → 12 - 12 = 0
+14 → 14 - 12 = 2
+```
+
+Square them:
+
+```text
+4
+0
+4
+```
+
+Therefore:
+
+[
+MSE = \frac{4+0+4}{3}
+]
+
+[
+MSE = 2.67
+]
+
+So this node has an MSE of approximately:
+
+```text
+2.67
+```
+
+---
+
+# 6. Why Does MSE Work?
+
+Think about these two groups.
+
+### Group A
+
+```text
+10
+11
+10
+12
+11
+```
+
+The values are very close.
+
+### Group B
+
+```text
+2
+50
+90
+15
+70
+```
+
+The values are spread out.
+
+Group A has **low variance**.
+
+Group B has **high variance**.
+
+A good regression tree wants:
+
+> **Low variance inside each leaf.**
+
+That's why we minimize MSE.
+
+---
+
+# 7. Weighted MSE of a Split
+
+Suppose we split our data into two nodes:
+
+```text
+             Root
+            /    \
+         Left    Right
+```
+
+The left node has:
+
+```text
+n_left = 4
+MSE_left = 10
+```
+
+The right node has:
+
+```text
+n_right = 6
+MSE_right = 20
+```
+
+Total observations:
+
+[
+n = 4+6=10
+]
+
+The weighted MSE is:
+
+[
+MSE_{split}
+===========
+
+\frac{
+n_{left}MSE_{left}
++
+n_{right}MSE_{right}
+}{
+n_{left}+n_{right}
+}
+]
+
+Therefore:
+
+[
+MSE_{split}
+===========
+
+\frac{4(10)+6(20)}{10}
+]
+
+[
+=\frac{40+120}{10}
+]
+
+[
+=16
+]
+
+So this particular split has:
+
+```text
+Weighted MSE = 16
+```
+
+The tree will compare this against other possible splits.
+
+---
+
+# 8. How the Tree Chooses the Best Split
+
+Suppose we have three candidate splits:
+
+| Split       | Weighted MSE |
+| ----------- | -----------: |
+| Size < 1000 |         25.4 |
+| Size < 1400 |     **12.8** |
+| Size < 1700 |         19.2 |
+
+The tree chooses:
+
+```text
+Size < 1400
+```
+
+because:
+
+[
+12.8 < 19.2 < 25.4
+]
+
+Therefore:
+
+> **The best split is the one with the lowest weighted MSE.**
+
+---
+
+# 9. How Are Thresholds Chosen?
+
+For a continuous feature, the lecture describes an **exhaustive search** approach.
+
+Suppose our feature values are:
+
+```text
+10
+20
+30
+40
+50
+```
+
+First, sort them:
+
+```text
+10 < 20 < 30 < 40 < 50
+```
+
+Then calculate the midpoint between consecutive values.
+
+### Between 10 and 20
+
+[
+\frac{10+20}{2}=15
+]
+
+### Between 20 and 30
+
+[
+\frac{20+30}{2}=25
+]
+
+### Between 30 and 40
+
+[
+\frac{30+40}{2}=35
+]
+
+### Between 40 and 50
+
+[
+\frac{40+50}{2}=45
+]
+
+Candidate thresholds become:
+
+```text
+15
+25
+35
+45
+```
+
+The tree tests each one and chooses the threshold producing the **lowest weighted MSE**.
+
+---
+
+# 10. Why Use Midpoints?
+
+Consider:
+
+```text
+10   20   30   40
+```
+
+A threshold of `20` and a threshold of `25` might produce the same partition:
+
+```text
+Left: 10, 20
+Right: 30, 40
+```
+
+Using the midpoint:
+
+```text
+25
+```
+
+gives us a clean threshold between the two neighboring values.
+
+So the general rule is:
+
+[
+\alpha_i = \frac{x_i+x_{i+1}}{2}
+]
+
+where (x_i) and (x_{i+1}) are consecutive unique sorted feature values.
+
+---
+
+# 11. What About Duplicate Values?
+
+Suppose we have:
+
+```text
+10
+20
+20
+20
+30
+40
+```
+
+We don't need to consider thresholds between:
+
+```text
+20 and 20
+```
+
+because there's no meaningful separation there.
+
+So we first consider unique values:
+
+```text
+10
+20
+30
+40
+```
+
+Then candidate thresholds:
+
+```text
+15
+25
+35
+```
+
+---
+
+# 12. Continuous vs Binary Features
+
+The lecture also discusses different types of features.
+
+### Continuous feature
+
+Example:
+
+```text
+Age
+Salary
+Temperature
+House Size
+```
+
+We test thresholds:
+
+```text
+Age < 25
+Age < 32
+Age < 40
+...
+```
+
+---
+
+### Binary feature
+
+Example:
+
+```text
+Has_Car
+0 = No
+1 = Yes
+```
+
+There's no need to search many thresholds.
+
+We simply split:
+
+```text
+Has_Car = 0
+       vs
+Has_Car = 1
+```
+
+Then calculate the weighted MSE.
+
+---
+
+### Multi-class categorical feature
+
+Example:
+
+```text
+City:
+Islamabad
+Lahore
+Karachi
+Peshawar
+```
+
+The tree needs to find a useful **binary partition** of those categories.
+
+For example:
+
+```text
+Group A:
+Islamabad
+Lahore
+
+Group B:
+Karachi
+Peshawar
+```
+
+It evaluates possible partitions and selects the one with the lowest weighted MSE.
+
+---
+
+# 13. Mean vs Median
+
+Normally, regression trees use the **mean** at a leaf.
+
+For example:
+
+```text
+10
+12
+14
+```
+
+Prediction:
+
+[
+\frac{10+12+14}{3}=12
+]
+
+But what happens if we have an outlier?
+
+```text
+10
+12
+14
+100
+```
+
+Mean:
+
+[
+\frac{10+12+14+100}{4}=34
+]
+
+That's heavily influenced by `100`.
+
+The **median** would be:
+
+```text
+13
+```
+
+So for highly skewed data, the median can sometimes provide a more robust prediction.
+
+The important point from the lecture is:
+
+> **Mean is the typical prediction used by regression trees, while other statistics such as the median can be used depending on the problem.**
+
+---
+
+# 14. The Complete Training Process
+
+Let's put everything together.
+
+Suppose we're predicting:
+
+```text
+House Price
+```
+
+using:
+
+```text
+House Size
+Bedrooms
+Age
+```
+
+The regression tree does roughly this:
+
+### Step 1 — Start with all training data
+
+```text
+All houses
+```
+
+### Step 2 — Look at possible features
+
+```text
+House Size
+Bedrooms
+Age
+```
+
+### Step 3 — Generate possible splits
+
+For example:
+
+```text
+Size < 1000
+Size < 1500
+Size < 2000
+
+Age < 5
+Age < 10
+Age < 20
+
+Bedrooms < 3
+Bedrooms < 4
+```
+
+### Step 4 — Calculate MSE
+
+For every possible split:
+
+```text
+Calculate left-node MSE
+Calculate right-node MSE
+Calculate weighted MSE
+```
+
+### Step 5 — Choose the best split
+
+Pick:
+
+```text
+Lowest weighted MSE
+```
+
+### Step 6 — Repeat recursively
+
+Each resulting node can be split again.
+
+```text
+                 Size < 1500?
+                /            \
+              Yes             No
+             /                 \
+       Age < 10?             Size < 2200?
+       /      \               /       \
+      ...     ...            ...      ...
+```
+
+### Step 7 — Stop splitting
+
+Eventually the tree reaches stopping conditions such as:
+
+* Maximum tree depth
+* Minimum number of samples required to split
+* Minimum number of samples in a leaf
+* No useful improvement from another split
+
+Then we have our final regression tree.
+
+---
+
+# 15. Prediction with a Regression Tree
+
+After training, prediction is very simple.
+
+Suppose the tree is:
+
+```text
+             Size < 1500?
+              /       \
+            Yes        No
+            /           \
+      Age < 10?       Price = 320k
+       /    \
+      /      \
+  200k      240k
+```
+
+For a new house:
+
+```text
+Size = 1200
+Age = 7
+```
+
+The tree follows:
+
+```text
+1200 < 1500 → Yes
+7 < 10 → Yes
+```
+
+Therefore:
+
+```text
+Prediction = 200k
+```
+
+---
+
+# 16. The Big Difference in Learning
+
+Here's a useful way to remember the difference.
+
+### Classification Tree
+
+It tries to make classes **pure**.
+
+```text
+Leaf:
+
+Cat
+Cat
+Cat
+Cat
+```
+
+Very good!
+
+---
+
+### Regression Tree
+
+It tries to make numerical values **close together**.
+
+```text
+Leaf:
+
+198k
+200k
+203k
+201k
+```
+
+Very good!
+
+But:
+
+```text
+Leaf:
+
+100k
+500k
+200k
+900k
+```
+
+Not good.
+
+The values are too spread out.
+
+---
+
+# 17. Important Correction in the Lecture
+
+The transcript says:
+
+> "Regression trees are created by recursively splitting the dataset into subsets to maximize information gained from data splitting."
+
+This wording is primarily associated with **classification trees**.
+
+For regression trees, the more precise way to think about it is:
+
+> **Recursively choose the feature and threshold that minimize the weighted prediction error, commonly measured using MSE.**
+
+So don't get confused between:
+
+```text
+Classification
+→ Entropy / Information Gain / Gini
+```
+
+and
+
+```text
+Regression
+→ MSE / Variance reduction
+```
+
+---
+
+# 🧠 Mental Model
+
+Remember this entire lecture with one simple idea:
+
+> **A regression tree keeps dividing the data until each group contains target values that are as similar as possible.**
+
+And the process is:
+
+```text
+             DATA
+               ↓
+       Try possible splits
+               ↓
+       Calculate MSE
+               ↓
+    Calculate weighted MSE
+               ↓
+       Pick lowest MSE
+               ↓
+        Split the data
+               ↓
+        Repeat recursively
+               ↓
+            LEAVES
+               ↓
+      Predict the mean value
+```
+
+### The key formula
+
+[
+\boxed{
+MSE_{split}
+===========
+
+\frac{
+n_L MSE_L+n_R MSE_R
+}{
+n_L+n_R
+}
+}
+]
+
+### The key rule
+
+[
+\boxed{\text{Best Split}=\text{Split with Minimum Weighted MSE}}
+]
+
+### The key difference
+
+[
+\boxed{\text{Classification → Majority Class}}
+]
+
+[
+\boxed{\text{Regression → Mean Target Value}}
+]
+
+---
+
+## 🎯 What You Should Remember for the Exam
+
+1. **Regression Tree** → predicts continuous numerical values.
+2. **Classification Tree** → predicts categorical values.
+3. Regression leaf prediction is usually the **mean** of target values.
+4. Regression trees commonly use **MSE** to evaluate splits.
+5. **Lower MSE = better split.**
+6. The split's MSE is calculated as a **weighted average of child-node MSEs**.
+7. Continuous features can use **midpoints between sorted unique values** as candidate thresholds.
+8. Binary features can be split directly into their two categories.
+9. Multi-class categorical features need possible binary partitions.
+10. Trees build themselves **recursively** until a stopping condition is reached.
+11. Regression trees are essentially trying to **reduce variance within nodes**.
