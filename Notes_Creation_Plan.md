@@ -47,3 +47,4 @@ Use the following structure for every module's notes:
 3. **Synthesize (ChatGPT Notes First):** Use the ChatGPT Notes as the foundational structure and primary source of truth. Group related information, eliminating filler words and redundant pleasantries. Keep the output focused purely on academic and practical knowledge by enriching the core ChatGPT Notes with details from the Transcript and Summary.
 4. **Format:** Apply the strategy mentioned in Section 2 (Tables, Flowcharts, Code blocks) to the extracted text.
 5. **Save:** Write the final `.md` file to the module's folder using `write_to_file` and notify the user of successful completion.
+6. **Code snippets:** Keep the Code Snippets with each topic separately at the end of each topic in the Module Notes, don't jumble everything together. The code snippets should be well-commented and easy to understand.
